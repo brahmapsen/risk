@@ -27,6 +27,9 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
 COPY . .
+# Include trained model artifacts for inference
+COPY readmission_model.json readmission_model.json
+COPY data/training_snapshot.csv data/training_snapshot.csv
 
 # Create necessary directories
 RUN mkdir -p data mlruns

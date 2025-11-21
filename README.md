@@ -38,10 +38,13 @@ localhost:5000
 ## Docker Deployment
 
 # Build and run with Docker Compose
-docker-compose up -d
+docker build -t readmission-risk-api:local .
 
 # With monitoring (Prometheus + Grafana)
 docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+
+# Test for data drifting
+python pipeline/monitor/test_drift.py
 
 # View services
 # API: http://localhost:8000

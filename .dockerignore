@@ -13,10 +13,12 @@ ENV/
 mlruns/
 *.pkl
 *.json
+!readmission_model.json
 
 # Data
 data/fhir/
 *.csv
+!data/training_snapshot.csv
 
 # IDE
 .vscode/
