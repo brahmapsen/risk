@@ -12,13 +12,27 @@ import signal
 
 @pytest.fixture(scope="module")
 def api_server():
-    """Start API server for testing."""
+    """Start API server for testing or use existing server."""
     # Check if model exists, if not skip
     if not os.path.exists("readmission_model.json"):
         pytest.skip("Model file does not exist. Run training first.")
 
     if not os.path.exists("data/training_snapshot.csv"):
         pytest.skip("Training snapshot does not exist. Run training first.")
+
+    base_url = "http://127.0.0.1:8000"
+    process = None
+
+    # Check if server is already running (e.g., in CI)
+    try:
+        response = httpx.get(f"{base_url}/health", timeout=2.0)
+        if response.status_code == 200:
+            # Server already running, use it
+            yield base_url
+            return
+    except (httpx.ConnectError, httpx.TimeoutException):
+        # Server not running, start our own
+        pass
 
     # Start server
     process = subprocess.Popen(
@@ -27,14 +41,28 @@ def api_server():
         stderr=subprocess.PIPE,
     )
 
-    # Wait for server to start
-    time.sleep(3)
+    # Wait for server to be ready (with retries)
+    max_retries = 10
+    for i in range(max_retries):
+        try:
+            response = httpx.get(f"{base_url}/health", timeout=2.0)
+            if response.status_code == 200:
+                break
+        except (httpx.ConnectError, httpx.TimeoutException):
+            if i == max_retries - 1:
+                # Server failed to start
+                if process:
+                    process.terminate()
+                    process.wait()
+                pytest.fail("API server failed to start")
+            time.sleep(1)
 
-    yield "http://127.0.0.1:8000"
+    yield base_url
 
-    # Cleanup
-    process.terminate()
-    process.wait()
+    # Cleanup (only if we started the server)
+    if process:
+        process.terminate()
+        process.wait()
 
 
 def test_predict_endpoint(api_server):
