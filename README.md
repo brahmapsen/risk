@@ -35,3 +35,31 @@ source env/bin/activate
 mlflow ui
 localhost:5000
 
+## Docker Deployment
+
+# Build and run with Docker Compose
+docker-compose up -d
+
+# With monitoring (Prometheus + Grafana)
+docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+
+# View services
+# API: http://localhost:8000
+# MLflow UI: http://localhost:5000
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000 (admin/admin)
+
+## Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
+
+## CI/CD
+
+The project includes a complete CI/CD pipeline:
+- Automated testing and validation
+- Docker image building
+- Model registry integration
+- Staging and production deployment
+
+See [CI_CD.md](CI_CD.md) for CI/CD documentation.
+

@@ -1,0 +1,28 @@
+#!/bin/bash
+# Script to help set up GitHub Secrets for CI/CD
+
+echo "🔐 GitHub Secrets Setup Guide"
+echo "=============================="
+echo ""
+echo "Go to your GitHub repository → Settings → Secrets and variables → Actions"
+echo ""
+echo "Add the following secrets:"
+echo ""
+echo "Required Secrets:"
+echo "  - AIML_API_KEY: Your AIML API key for LLM features"
+echo "  - DOCKER_REGISTRY: Your Docker registry URL (e.g., ghcr.io, docker.io)"
+echo "  - DOCKER_USERNAME: Docker registry username"
+echo "  - DOCKER_PASSWORD: Docker registry password/token"
+echo ""
+echo "Optional Secrets (for deployment):"
+echo "  - STAGING_URL: Staging environment URL"
+echo "  - PRODUCTION_URL: Production environment URL"
+echo "  - KUBECONFIG: Kubernetes config (if using K8s)"
+echo "  - SSH_PRIVATE_KEY: SSH key for server deployment"
+echo "  - DEPLOY_HOST: Deployment server hostname"
+echo ""
+echo "For local development, create a .env file:"
+echo "  cp .env.example .env"
+echo "  # Edit .env with your actual values"
+echo ""
+

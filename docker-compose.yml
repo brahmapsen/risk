@@ -1,0 +1,49 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: readmission-risk-api
+    ports:
+      - "8000:8000"
+    environment:
+      - MLFLOW_TRACKING_URI=./mlruns
+      - AIML_API_KEY=${AIML_API_KEY:-}
+      - PORT=8000
+    volumes:
+      # Mount data directory for model and training snapshot
+      - ./data:/app/data
+      - ./mlruns:/app/mlruns
+      # Mount model files if they exist locally
+      - ./readmission_model.json:/app/readmission_model.json:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/docs', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - risk-network
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.12.1
+    container_name: mlflow-ui
+    ports:
+      - "5000:5000"
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=file:///mlruns
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=file:///mlruns
+    volumes:
+      - ./mlruns:/mlruns
+    command: mlflow ui --host 0.0.0.0 --port 5000 --backend-store-uri file:///mlruns
+    restart: unless-stopped
+    networks:
+      - risk-network
+    depends_on:
+      - api
+
+networks:
+  risk-network:
+    driver: bridge
+

@@ -2,9 +2,10 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# Load environment variables from .env file if it exists
 env_path = os.path.abspath(".env")
-print("Trying to load .env from:", env_path)
-load_dotenv()
+if os.path.exists(env_path):
+    load_dotenv(env_path)
 
 def get_llm():
     """
@@ -12,12 +13,16 @@ def get_llm():
     Works with OpenAI API, AIML API, Groq API (OpenAI-compatible).
     """
     
-    api_key = os.environ["AIML_API_KEY"] ##os.getenv("LLM_API_KEY")
-    base_url="https://api.aimlapi.com/v1"
-    model = "gpt-4o-mini"
+    # Get API key from environment (supports both AIML_API_KEY and LLM_API_KEY)
+    api_key = os.getenv("AIML_API_KEY") or os.getenv("LLM_API_KEY")
+    base_url = os.getenv("LLM_BASE_URL", "https://api.aimlapi.com/v1")
+    model = os.getenv("LLM_MODEL", "gpt-4o-mini")
 
     if not api_key:
-        raise ValueError("Missing LLM_API_KEY environment variable")
+        raise ValueError(
+            "Missing API key. Set AIML_API_KEY or LLM_API_KEY environment variable.\n"
+            "For local development, create a .env file with your API key."
+        )
 
     # openai_client = OpenAI()
     

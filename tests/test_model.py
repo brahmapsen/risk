@@ -36,13 +36,19 @@ def sample_data():
 @pytest.fixture
 def temp_mlruns():
     """Create temporary MLflow tracking directory."""
+    import mlflow
+    # Ensure no active run exists before starting
+    mlflow.end_run()
+    
     temp_dir = tempfile.mkdtemp()
     original_uri = os.environ.get('MLFLOW_TRACKING_URI')
     os.environ['MLFLOW_TRACKING_URI'] = f'file://{temp_dir}'
     
     yield temp_dir
     
-    # Cleanup
+    # Cleanup - ensure any active runs are ended
+    mlflow.end_run()
+    
     if original_uri:
         os.environ['MLFLOW_TRACKING_URI'] = original_uri
     else:
@@ -63,28 +69,39 @@ def test_model_metrics_exist(sample_data, temp_mlruns):
     """Test that all expected metrics are logged."""
     import mlflow
     
+    # Ensure no active run exists
+    mlflow.end_run()
+    
     mlflow.set_experiment("Readmission Risk Model")
     
-    with mlflow.start_run() as run:
-        model = train_model(sample_data, tune=False)
-        
-        # Check that metrics were logged
-        run_id = run.info.run_id
-        client = mlflow.tracking.MlflowClient()
-        metrics = client.get_run(run_id).data.metrics
-        
-        assert 'AUC' in metrics
-        assert 'Accuracy' in metrics
-        assert 'Precision' in metrics
-        assert 'Recall' in metrics
-        assert 'F1' in metrics
-        
-        # Check that metrics are reasonable
-        assert 0 <= metrics['AUC'] <= 1
-        assert 0 <= metrics['Accuracy'] <= 1
-        assert 0 <= metrics['Precision'] <= 1
-        assert 0 <= metrics['Recall'] <= 1
-        assert 0 <= metrics['F1'] <= 1
+    # train_model() starts its own run, so we don't wrap it
+    model = train_model(sample_data, tune=False)
+    
+    # Get the most recent run
+    client = mlflow.tracking.MlflowClient()
+    experiment = mlflow.get_experiment_by_name("Readmission Risk Model")
+    runs = client.search_runs(
+        experiment_ids=[experiment.experiment_id],
+        order_by=["start_time DESC"],
+        max_results=1
+    )
+    
+    assert len(runs) > 0, "No runs found"
+    latest_run = runs[0]
+    metrics = latest_run.data.metrics
+    
+    assert 'AUC' in metrics
+    assert 'Accuracy' in metrics
+    assert 'Precision' in metrics
+    assert 'Recall' in metrics
+    assert 'F1' in metrics
+    
+    # Check that metrics are reasonable
+    assert 0 <= metrics['AUC'] <= 1
+    assert 0 <= metrics['Accuracy'] <= 1
+    assert 0 <= metrics['Precision'] <= 1
+    assert 0 <= metrics['Recall'] <= 1
+    assert 0 <= metrics['F1'] <= 1
 
 
 def test_load_model():

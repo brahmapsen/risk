@@ -53,7 +53,12 @@ def test_predict_endpoint(api_server):
         }
     )
     
-    assert response.status_code == 200
+    if response.status_code != 200:
+        # Print error details for debugging
+        print(f"API Error: {response.status_code}")
+        print(f"Response: {response.text}")
+    
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
     data = response.json()
     
     assert "probability" in data
@@ -97,7 +102,11 @@ def test_predict_endpoint_edge_cases(api_server):
         }
     )
     
-    assert response.status_code == 200
+    if response.status_code != 200:
+        print(f"API Error: {response.status_code}")
+        print(f"Response: {response.text}")
+    
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
     data = response.json()
     assert "probability" in data
     
@@ -115,7 +124,11 @@ def test_predict_endpoint_edge_cases(api_server):
         }
     )
     
-    assert response.status_code == 200
+    if response.status_code != 200:
+        print(f"API Error: {response.status_code}")
+        print(f"Response: {response.text}")
+    
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
     data = response.json()
     assert "probability" in data
 

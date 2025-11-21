@@ -1,8 +1,8 @@
 {
     "age": {
-        "ks_stat": 0.9625,
-        "ks_pvalue": 0.08695652173913046,
-        "psi": 11.8893455429232,
+        "ks_stat": 0.80625,
+        "ks_pvalue": 0.3975155279503105,
+        "psi": 12.608759377871754,
         "drift_detected": true
     },
     "gender": {
@@ -12,57 +12,57 @@
         "drift_detected": true
     },
     "num_encounters": {
-        "ks_stat": 0.34375,
-        "ks_pvalue": 1.0,
-        "psi": 9.457071722780924,
+        "ks_stat": 0.6625,
+        "ks_pvalue": 0.6832298136645961,
+        "psi": 9.140872701387329,
         "drift_detected": true
     },
     "avg_los": {
-        "ks_stat": 0.51875,
-        "ks_pvalue": 0.968944099378882,
-        "psi": 13.204687454734152,
+        "ks_stat": 0.91875,
+        "ks_pvalue": 0.17391304347826095,
+        "psi": 12.87784495230595,
         "drift_detected": true
     },
     "creatinine": {
-        "ks_stat": 0.5375,
-        "ks_pvalue": 0.9316770186335404,
-        "psi": 12.62967358385221,
+        "ks_stat": 0.95,
+        "ks_pvalue": 0.11180124223602485,
+        "psi": 13.658573221522012,
         "drift_detected": true
     },
     "heart_rate": {
-        "ks_stat": 0.81875,
-        "ks_pvalue": 0.37267080745341613,
-        "psi": 12.627606390136064,
+        "ks_stat": 0.8375,
+        "ks_pvalue": 0.3354037267080748,
+        "psi": 12.186245964442843,
         "drift_detected": true
     },
     "systolic_bp": {
-        "ks_stat": 0.6375,
-        "ks_pvalue": 0.7329192546583851,
-        "psi": 12.45030297785048,
+        "ks_stat": 0.64375,
+        "ks_pvalue": 0.7204968944099378,
+        "psi": 12.159827284627287,
         "drift_detected": true
     },
     "high_creatinine": {
-        "ks_stat": 0.325,
-        "ks_pvalue": 1.0,
-        "psi": 4.252530045309334,
+        "ks_stat": 0.675,
+        "ks_pvalue": 0.6583850931677017,
+        "psi": 9.818844232621016,
         "drift_detected": true
     },
     "high_bp": {
-        "ks_stat": 0.575,
-        "ks_pvalue": 0.8571428571428571,
-        "psi": 8.117756408362505,
+        "ks_stat": 0.425,
+        "ks_pvalue": 1.0,
+        "psi": 5.743149735673711,
         "drift_detected": true
     },
     "tachycardia": {
-        "ks_stat": 0.64375,
-        "ks_pvalue": 0.7204968944099378,
-        "psi": 9.2746532827715,
+        "ks_stat": 0.35625,
+        "ks_pvalue": 1.0,
+        "psi": 4.711017867416169,
         "drift_detected": true
     },
     "encounter_los_ratio": {
-        "ks_stat": 0.525,
-        "ks_pvalue": 0.9565217391304348,
-        "psi": 12.365313986849419,
+        "ks_stat": 0.48125,
+        "ks_pvalue": 1.0,
+        "psi": 10.258340574217858,
         "drift_detected": true
     }
 }
