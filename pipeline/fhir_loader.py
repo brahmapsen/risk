@@ -3,6 +3,7 @@ import glob
 import pandas as pd
 from datetime import datetime
 
+
 def load_fhir_bundles(path="./data/fhir/*.json"):
     bundles = []
     for file in glob.glob(path):
@@ -47,7 +48,7 @@ def bundle_to_features(bundle):
         "creatinine": labs.get("creatinine", None),
         "heart_rate": labs.get("heart_rate", None),
         "systolic_bp": labs.get("systolic_bp", None),
-        "readmitted_30d": bundle["readmission_label"]
+        "readmitted_30d": bundle["readmission_label"],
     }
 
 

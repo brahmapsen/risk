@@ -7,12 +7,13 @@ env_path = os.path.abspath(".env")
 if os.path.exists(env_path):
     load_dotenv(env_path)
 
+
 def get_llm():
     """
     Generic LLM client wrapper.
     Works with OpenAI API, AIML API, Groq API (OpenAI-compatible).
     """
-    
+
     # Get API key from environment (supports both AIML_API_KEY and LLM_API_KEY)
     api_key = os.getenv("AIML_API_KEY") or os.getenv("LLM_API_KEY")
     base_url = os.getenv("LLM_BASE_URL", "https://api.aimlapi.com/v1")
@@ -25,10 +26,10 @@ def get_llm():
         )
 
     # openai_client = OpenAI()
-    
+
     client = OpenAI(
         base_url=base_url,
-        api_key= api_key,
+        api_key=api_key,
     )
     return client
 
@@ -36,6 +37,7 @@ def get_llm():
 # ------------------------------------------------------------
 # 1. Explanation for Readmission Prediction
 # ------------------------------------------------------------
+
 
 def explain_prediction(features: dict, probability: float, model: str = "gpt-4o-mini"):
     """
@@ -56,9 +58,11 @@ def explain_prediction(features: dict, probability: float, model: str = "gpt-4o-
     """
 
     response = client.chat.completions.create(
-        model= model,
-        messages=[{"role": "system", "content": "You are a helpful clinical AI assistant."},
-                  {"role": "user", "content": prompt}]
+        model=model,
+        messages=[
+            {"role": "system", "content": "You are a helpful clinical AI assistant."},
+            {"role": "user", "content": prompt},
+        ],
     )
 
     return response.choices[0].message.content
@@ -67,6 +71,7 @@ def explain_prediction(features: dict, probability: float, model: str = "gpt-4o-
 # ------------------------------------------------------------
 # 2. Explain Drift Results
 # ------------------------------------------------------------
+
 
 def explain_drift(drift_json: dict):
     """
@@ -89,8 +94,10 @@ def explain_drift(drift_json: dict):
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "system", "content": "You are an MLOps drift analysis expert."},
-                  {"role": "user", "content": prompt}]
+        messages=[
+            {"role": "system", "content": "You are an MLOps drift analysis expert."},
+            {"role": "user", "content": prompt},
+        ],
     )
 
     return response.choices[0].message.content
@@ -99,6 +106,7 @@ def explain_drift(drift_json: dict):
 # ------------------------------------------------------------
 # 3. Generate a Full Clinical Summary for Discharge Team
 # ------------------------------------------------------------
+
 
 def generate_clinical_summary(features: dict, probability: float):
     """
@@ -121,8 +129,13 @@ def generate_clinical_summary(features: dict, probability: float):
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "system", "content": "You are a clinical risk communication expert."},
-                  {"role": "user", "content": prompt}]
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a clinical risk communication expert.",
+            },
+            {"role": "user", "content": prompt},
+        ],
     )
 
     return response.choices[0].message.content
@@ -131,6 +144,7 @@ def generate_clinical_summary(features: dict, probability: float):
 # ------------------------------------------------------------
 # 4. Safety Guardrails (LLM-assisted)
 # ------------------------------------------------------------
+
 
 def safety_guardrails(features: dict):
     """
@@ -149,8 +163,10 @@ def safety_guardrails(features: dict):
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "system", "content": "You are a clinical safety assistant."},
-                  {"role": "user", "content": prompt}]
+        messages=[
+            {"role": "system", "content": "You are a clinical safety assistant."},
+            {"role": "user", "content": prompt},
+        ],
     )
 
     return response.choices[0].message.content

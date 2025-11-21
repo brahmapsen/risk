@@ -1,6 +1,7 @@
 """
 Integration tests for the FastAPI endpoints.
 """
+
 import pytest
 import httpx
 import os
@@ -15,22 +16,22 @@ def api_server():
     # Check if model exists, if not skip
     if not os.path.exists("readmission_model.json"):
         pytest.skip("Model file does not exist. Run training first.")
-    
+
     if not os.path.exists("data/training_snapshot.csv"):
         pytest.skip("Training snapshot does not exist. Run training first.")
-    
+
     # Start server
     process = subprocess.Popen(
         ["uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", "8000"],
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+        stderr=subprocess.PIPE,
     )
-    
+
     # Wait for server to start
     time.sleep(3)
-    
+
     yield "http://127.0.0.1:8000"
-    
+
     # Cleanup
     process.terminate()
     process.wait()
@@ -39,7 +40,7 @@ def api_server():
 def test_predict_endpoint(api_server):
     """Test the /predict endpoint with valid data."""
     client = httpx.Client(base_url=api_server, timeout=10.0)
-    
+
     response = client.post(
         "/predict",
         json={
@@ -49,18 +50,20 @@ def test_predict_endpoint(api_server):
             "avg_los": 4.5,
             "creatinine": 1.8,
             "heart_rate": 110,
-            "systolic_bp": 145
-        }
+            "systolic_bp": 145,
+        },
     )
-    
+
     if response.status_code != 200:
         # Print error details for debugging
         print(f"API Error: {response.status_code}")
         print(f"Response: {response.text}")
-    
-    assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
+
+    assert (
+        response.status_code == 200
+    ), f"Expected 200, got {response.status_code}: {response.text}"
     data = response.json()
-    
+
     assert "probability" in data
     assert "risk_level" in data
     assert 0 <= data["probability"] <= 1
@@ -70,7 +73,7 @@ def test_predict_endpoint(api_server):
 def test_predict_endpoint_invalid_data(api_server):
     """Test the /predict endpoint with invalid data."""
     client = httpx.Client(base_url=api_server, timeout=10.0)
-    
+
     # Missing required field
     response = client.post(
         "/predict",
@@ -78,16 +81,16 @@ def test_predict_endpoint_invalid_data(api_server):
             "age": 72,
             "gender": 1,
             # Missing other required fields
-        }
+        },
     )
-    
+
     assert response.status_code == 422  # Validation error
 
 
 def test_predict_endpoint_edge_cases(api_server):
     """Test edge cases for predictions."""
     client = httpx.Client(base_url=api_server, timeout=10.0)
-    
+
     # Test with very high risk factors
     response = client.post(
         "/predict",
@@ -98,18 +101,20 @@ def test_predict_endpoint_edge_cases(api_server):
             "avg_los": 20.0,
             "creatinine": 3.5,
             "heart_rate": 150,
-            "systolic_bp": 200
-        }
+            "systolic_bp": 200,
+        },
     )
-    
+
     if response.status_code != 200:
         print(f"API Error: {response.status_code}")
         print(f"Response: {response.text}")
-    
-    assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
+
+    assert (
+        response.status_code == 200
+    ), f"Expected 200, got {response.status_code}: {response.text}"
     data = response.json()
     assert "probability" in data
-    
+
     # Test with very low risk factors
     response = client.post(
         "/predict",
@@ -120,15 +125,16 @@ def test_predict_endpoint_edge_cases(api_server):
             "avg_los": 2.0,
             "creatinine": 0.8,
             "heart_rate": 70,
-            "systolic_bp": 120
-        }
+            "systolic_bp": 120,
+        },
     )
-    
+
     if response.status_code != 200:
         print(f"API Error: {response.status_code}")
         print(f"Response: {response.text}")
-    
-    assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
+
+    assert (
+        response.status_code == 200
+    ), f"Expected 200, got {response.status_code}: {response.text}"
     data = response.json()
     assert "probability" in data
-

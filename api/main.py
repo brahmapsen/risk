@@ -1,9 +1,12 @@
 import warnings
+
 # Suppress deprecation warnings from dependencies
 # Pydantic v2 warnings (from pandera)
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="pydantic.*")
 # MLflow dependency warnings
-warnings.filterwarnings("ignore", message="google.protobuf.service module is deprecated")
+warnings.filterwarnings(
+    "ignore", message="google.protobuf.service module is deprecated"
+)
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
 warnings.filterwarnings("ignore", category=UserWarning, module="mlflow.*")
 
@@ -27,7 +30,7 @@ from pipeline.llm.llm_utils import (
     explain_prediction,
     explain_drift,
     generate_clinical_summary,
-    safety_guardrails
+    safety_guardrails,
 )
 
 
@@ -49,10 +52,9 @@ except Exception as e:
     TRAIN_DF = None
 
 
-
 class PatientFeatures(BaseModel):
     age: int
-    gender: int          # 1 = male, 0 = female
+    gender: int  # 1 = male, 0 = female
     num_encounters: int
     avg_los: float
     creatinine: float
@@ -66,8 +68,9 @@ def health_check():
     return {
         "status": "healthy",
         "model_loaded": model is not None,
-        "training_data_loaded": TRAIN_DF is not None
+        "training_data_loaded": TRAIN_DF is not None,
     }
+
 
 @app.get("/metrics")
 def metrics():
@@ -75,16 +78,24 @@ def metrics():
     # This is handled by prometheus-fastapi-instrumentator
     pass
 
+
 @app.post("/predict")
 def predict_risk(features: PatientFeatures, request: Request):
     if model is None:
         from fastapi import HTTPException
-        raise HTTPException(status_code=503, detail="Model not loaded. Please train the model first.")
-    
+
+        raise HTTPException(
+            status_code=503, detail="Model not loaded. Please train the model first."
+        )
+
     if TRAIN_DF is None:
         from fastapi import HTTPException
-        raise HTTPException(status_code=503, detail="Training data not loaded. Please train the model first.")
-    
+
+        raise HTTPException(
+            status_code=503,
+            detail="Training data not loaded. Please train the model first.",
+        )
+
     # Convert request payload → DataFrame
     df = pd.DataFrame([features.dict()])
 
@@ -104,7 +115,9 @@ def predict_risk(features: PatientFeatures, request: Request):
 
     # 4. Prepare features for inference (drop non-feature columns)
     # The model was trained on features after dropping patient_id and readmitted_30d
-    feature_cols = [col for col in df.columns if col not in ['patient_id', 'readmitted_30d']]
+    feature_cols = [
+        col for col in df.columns if col not in ["patient_id", "readmitted_30d"]
+    ]
     df_features = df[feature_cols]
 
     # 5. Inference
@@ -134,5 +147,3 @@ def predict_risk(features: PatientFeatures, request: Request):
         # "clinical_summary": summary,
         # "safety_review": safety_check
     }
-
-

@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 OUTPUT_DIR = "./data/fhir/"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+
 def generate_patient():
     patient_id = str(uuid.uuid4())
     birth_year = random.randint(1950, 2005)
@@ -16,7 +17,7 @@ def generate_patient():
         "resourceType": "Patient",
         "id": patient_id,
         "gender": gender,
-        "birthDate": f"{birth_year}-01-01"
+        "birthDate": f"{birth_year}-01-01",
     }, patient_id
 
 
@@ -34,18 +35,17 @@ def generate_encounters(patient_id):
 
         encounter_id = str(uuid.uuid4())
 
-        encounters.append({
-            "resourceType": "Encounter",
-            "id": encounter_id,
-            "subject": {"reference": f"Patient/{patient_id}"},
-            "period": {
-                "start": admit.isoformat(),
-                "end": discharge.isoformat()
+        encounters.append(
+            {
+                "resourceType": "Encounter",
+                "id": encounter_id,
+                "subject": {"reference": f"Patient/{patient_id}"},
+                "period": {"start": admit.isoformat(), "end": discharge.isoformat()},
             }
-        })
+        )
 
         if i > 0:
-            prev_end = datetime.fromisoformat(encounters[i-1]["period"]["end"])
+            prev_end = datetime.fromisoformat(encounters[i - 1]["period"]["end"])
             if (admit - prev_end).days <= 30:
                 readmission_flag = True
 
@@ -64,13 +64,15 @@ def generate_observations(patient_id):
     }
 
     for name, value in vitals.items():
-        observations.append({
-            "resourceType": "Observation",
-            "id": str(uuid.uuid4()),
-            "subject": {"reference": f"Patient/{patient_id}"},
-            "code": {"text": name},
-            "valueQuantity": {"value": value}
-        })
+        observations.append(
+            {
+                "resourceType": "Observation",
+                "id": str(uuid.uuid4()),
+                "subject": {"reference": f"Patient/{patient_id}"},
+                "code": {"text": name},
+                "valueQuantity": {"value": value},
+            }
+        )
 
     return observations
 
@@ -86,14 +88,15 @@ def main(n=200):
             "type": "collection",
             "readmission_label": readmission,
             "entry": [{"resource": patient}]
-                     + [{"resource": e} for e in encounters]
-                     + [{"resource": o} for o in observations]
+            + [{"resource": e} for e in encounters]
+            + [{"resource": o} for o in observations],
         }
 
         with open(os.path.join(OUTPUT_DIR, f"{patient_id}.json"), "w") as f:
             json.dump(bundle, f, indent=2)
 
     print("Generated synthetic FHIR bundles.")
+
 
 if __name__ == "__main__":
     main()

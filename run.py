@@ -13,6 +13,7 @@ Usage:
 from pipeline.fhir_loader import build_dataset
 from pipeline.model import train_model
 
+
 def main():
     print("📥 Building dataset from FHIR bundles...")
     df = build_dataset()

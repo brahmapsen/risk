@@ -24,7 +24,7 @@ def add_derived_features(df: pd.DataFrame) -> pd.DataFrame:
 
 def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Fill missing values using simple logic. 
+    Fill missing values using simple logic.
     (In real-world pipelines, this can be replaced with advanced imputation.)
     """
 
@@ -55,7 +55,9 @@ def normalize_features(df: pd.DataFrame, exclude=None) -> pd.DataFrame:
     if exclude is None:
         exclude = []
 
-    numeric_cols = [col for col in df.columns if col not in exclude and df[col].dtype != "object"]
+    numeric_cols = [
+        col for col in df.columns if col not in exclude and df[col].dtype != "object"
+    ]
 
     for col in numeric_cols:
         df[col] = (df[col] - df[col].mean()) / (df[col].std() + 1e-6)

@@ -31,7 +31,7 @@ def objective(trial, X, y):
         dtrain=dtrain,
         evals=[(dval, "eval")],
         num_boost_round=trial.suggest_int("num_boost_round", 100, 500),
-        verbose_eval=False
+        verbose_eval=False,
     )
 
     preds = booster.predict(dval)

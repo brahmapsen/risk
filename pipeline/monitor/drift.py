@@ -20,9 +20,9 @@ def psi(expected, actual, buckets=10):
     return psi_value
 
 
-def detect_drift(reference_df: pd.DataFrame,
-                 current_df: pd.DataFrame,
-                 save_path="drift_report.json"):
+def detect_drift(
+    reference_df: pd.DataFrame, current_df: pd.DataFrame, save_path="drift_report.json"
+):
 
     drift_report = {}
     numeric_cols = reference_df.select_dtypes(include=[np.number]).columns
@@ -41,11 +41,16 @@ def detect_drift(reference_df: pd.DataFrame,
                 "ks_stat": float(ks_stat),
                 "ks_pvalue": float(ks_pvalue),
                 "psi": float(psi_value),
-                "drift_detected": bool(drift_detected)
+                "drift_detected": bool(drift_detected),
             }
 
     # Convert all numpy types → python native for JSON
-    clean_report = json.loads(json.dumps(drift_report, default=lambda x: float(x) if isinstance(x, np.number) else bool(x)))
+    clean_report = json.loads(
+        json.dumps(
+            drift_report,
+            default=lambda x: float(x) if isinstance(x, np.number) else bool(x),
+        )
+    )
 
     # Save JSON
     with open(save_path, "w") as f:
