@@ -4,7 +4,6 @@ for hospitals that continuously analyzes patient, operational, and staffing data
 AI-powered hospital risk command center that predicts patient deterioration, readmissions, and operational bottlenecks before they happen — and gives clinicians actionable insights in real time.
 
 hlth/cip/risk
-source env/bin/activate
 
 # generate synthetic data in the data/fhir directory.
 python scripts/generate_data.py 
@@ -31,7 +30,7 @@ curl -X POST "http://localhost:8000/predict" \
 
 # START ML-FLOW
 hlth/cip/risk
-source env/bin/activate
+
 mlflow ui
 localhost:5000
 
@@ -54,7 +53,6 @@ python pipeline/monitor/test_drift.py
 
 ## Deployment
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 
 ## CI/CD
 
@@ -63,6 +61,4 @@ The project includes a complete CI/CD pipeline:
 - Docker image building
 - Model registry integration
 - Staging and production deployment
-
-See [CI_CD.md](CI_CD.md) for CI/CD documentation.
 
