@@ -13,7 +13,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-DB_PATH = "data/sas_table_subset_copy.db"
+DB_PATH = "data/dhcf_claims.db"
 OUTPUT_PATH = "data/ffs_features.csv"
 
 

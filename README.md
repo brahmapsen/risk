@@ -34,6 +34,12 @@ hlth/cip/risk
 mlflow ui
 localhost:5000
 
+## Benchmarking
+python scripts/benchmarking.py
+python scripts/benchmarking_tf_tune.py
+python scripts/benchmarking_torch.py
+
+
 ## Docker Deployment
 
 # Build and run with Docker Compose

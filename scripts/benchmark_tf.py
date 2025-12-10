@@ -1,16 +1,13 @@
 import os
 import json
 import pandas as pd
-import numpy as np
 from glob import glob
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score
 import mlflow
-import joblib
 import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.callbacks import EarlyStopping
 
 FHIR_DIR = "data/fhir"
 
@@ -36,35 +33,7 @@ def load_dataset():
     files = glob(os.path.join(FHIR_DIR, "*.json"))
     rows = [flatten_fhir(f) for f in files]
     df = pd.DataFrame(rows).fillna(0)
-    print("Returning dataframe...")
     return df
-
-def benchmark_models(df):
-    X = df.drop(columns=["patient_id", "readmission"])
-    y = df["readmission"]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
-
-    models = {
-        "RandomForest": RandomForestClassifier(n_estimators=100, random_state=42),
-        "GradientBoosting": GradientBoostingClassifier(random_state=42),
-        "LogisticRegression": LogisticRegression(max_iter=1000)
-    }
-
-    for name, model in models.items():
-        with mlflow.start_run(run_name=name):
-            model.fit(X_train, y_train)
-            preds = model.predict(X_test)
-            acc = accuracy_score(y_test, preds)
-            f1 = f1_score(y_test, preds)
-
-            mlflow.log_param("model", name)
-            mlflow.log_metric("accuracy", acc)
-            mlflow.log_metric("f1_score", f1)
-
-            joblib.dump(model, f"models/{name}.joblib")
-            mlflow.log_artifact(f"models/{name}.joblib")
-
-            print(f"{name} - Accuracy: {acc:.3f}, F1: {f1:.3f}")
 
 def run_tensorflow_nn(X, y):
     # Scale features
@@ -74,9 +43,17 @@ def run_tensorflow_nn(X, y):
     X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
     # Define simple feedforward model
+    # model = tf.keras.Sequential([
+    #     tf.keras.layers.Input(shape=(X_train.shape[1],)),   # (3,) features
+    #     tf.keras.layers.Dense(8, activation='relu'),
+    #     tf.keras.layers.Dense(1, activation='sigmoid')
+    # ])
+
+    # Define the model
     model = tf.keras.Sequential([
-        tf.keras.layers.Dense(64, activation='relu', input_shape=(X_train.shape[1],)),
-        tf.keras.layers.Dense(32, activation='relu'),
+        tf.keras.layers.Input(shape=(X_train.shape[1],)),  # 3 features
+        tf.keras.layers.Dense(8, activation='relu'),
+        tf.keras.layers.Dropout(0.1),
         tf.keras.layers.Dense(1, activation='sigmoid')
     ])
 
@@ -85,7 +62,24 @@ def run_tensorflow_nn(X, y):
                   metrics=['accuracy'])
 
     # Fit model
-    model.fit(X_train, y_train, epochs=10, batch_size=32, verbose=0)
+    # model.fit(X_train, y_train, epochs=10, batch_size=32, verbose=0)
+
+    # Define early stopping
+    early_stop = EarlyStopping(
+        monitor='val_loss',
+        patience=5,
+        restore_best_weights=True
+    )
+
+    # Train the model
+    model.fit(
+        X_train, y_train,
+        validation_split=0.2,
+        epochs=100,
+        batch_size=16,
+        callbacks=[early_stop],
+        verbose=1
+    )
 
     # Evaluate
     y_pred_probs = model.predict(X_test).flatten()
@@ -102,16 +96,18 @@ def run_tensorflow_nn(X, y):
 
     print(f"TensorFlow_NN - Accuracy: {acc:.3f}, F1: {f1:.3f}")
 
-
 if __name__ == "__main__":
     os.makedirs("models", exist_ok=True)
-    mlflow.set_experiment("fhir_benchmark")
+    mlflow.set_experiment("fhir_benchmark_tensorflow")
 
     df = load_dataset()
-    print(df.head(1))
-    # benchmark_models(df)
-
+    print("Got dataframe...")
+    print("df.shape:", df.shape)
+    
     # TensorFlow NN benchmarking
-    # X = df.drop(columns=["patient_id", "readmission"])
-    # y = df["readmission"]
-    # run_tensorflow_nn(X, y)
+    X = df.drop(columns=["patient_id", "readmission"])
+    y = df["readmission"]
+    print("X.shape:", X.shape)
+    print(df.head())
+
+    run_tensorflow_nn(X, y)

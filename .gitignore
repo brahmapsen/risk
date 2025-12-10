@@ -8,7 +8,7 @@ _.db
 \*.sqlite3
 
 #data
-data/fhir/
+data/
 mlruns/
 
 # Virtual Environments
@@ -47,4 +47,4 @@ openapi.json
 scripts/push_to_ecr.sh
 
 #joblib file
-models/\*.joblib
+models/
